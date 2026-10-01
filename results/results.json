@@ -1,0 +1,115 @@
+{
+  "literary_digest": {
+    "digest_fdr_two_party_pct": 42.9,
+    "actual_fdr_two_party_pct": 62.5,
+    "error_points": 19.6,
+    "ballots_returned": 2266566,
+    "equivalent_random_sample_size": 6.1,
+    "model": {
+      "frame_only_fdr_pct": 50.0,
+      "frame_plus_nonresponse_fdr_pct": 43.0,
+      "outside_frame_fdr_pct": 69.2,
+      "implied_response_rate_pct": 25.0,
+      "share_of_error_from_nonresponse_pct": 36.0
+    },
+    "digest_err_at_2_4M_points": 19.5,
+    "srs_err_at_1500_points": 1.0
+  },
+  "wald_bombers": {
+    "loss_rate_pct": 19.5,
+    "returned_density_vs_true_pct": {
+      "Engines": 68,
+      "Cockpit": 72,
+      "Fuel system": 84,
+      "Fuselage": 108,
+      "Wings": 109
+    },
+    "true_lethality": {
+      "Engines": 0.4,
+      "Cockpit": 0.35,
+      "Fuel system": 0.25,
+      "Fuselage": 0.04,
+      "Wings": 0.03
+    },
+    "wald_estimated_lethality": {
+      "Engines": 0.402,
+      "Cockpit": 0.371,
+      "Fuel system": 0.264,
+      "Fuselage": 0.032,
+      "Wings": 0.03
+    }
+  },
+  "hrt": {
+    "true_rr": 1.24,
+    "observational_naive_rr": 0.55,
+    "observational_adjusted_rr": 0.77,
+    "rct_rr": 1.23,
+    "hrt_uptake_pct": 36.3
+  },
+  "hot_hand": {
+    "exact_n4_k1_expected_p_hit_after_hit": 0.4048,
+    "n100_k3_expected_p_hit_after_3_hits": 0.4602,
+    "n100_k3_expected_gap_hits_minus_misses_points": -7.9,
+    "curve_points": {
+      "k=1": {
+        "10": -5.57,
+        "20": -2.59,
+        "40": -1.23,
+        "60": -0.85,
+        "100": -0.54,
+        "200": -0.28,
+        "400": -0.15
+      },
+      "k=2": {
+        "10": -12.34,
+        "20": -8.64,
+        "40": -4.2,
+        "60": -2.7,
+        "100": -1.59,
+        "200": -0.74,
+        "400": -0.42
+      },
+      "k=3": {
+        "10": -14.31,
+        "20": -13.93,
+        "40": -9.65,
+        "60": -6.75,
+        "100": -4.05,
+        "200": -1.83,
+        "400": -0.84
+      }
+    }
+  },
+  "birth_weight": {
+    "all": {
+      "smoker_per_1000": 10.4,
+      "nonsmoker_per_1000": 6.2,
+      "rr": 1.68,
+      "defect_share_smoker_pct": 2.0,
+      "defect_share_nonsmoker_pct": 2.0
+    },
+    "lbw": {
+      "smoker_per_1000": 40.0,
+      "nonsmoker_per_1000": 47.4,
+      "rr": 0.84,
+      "defect_share_smoker_pct": 10.0,
+      "defect_share_nonsmoker_pct": 16.9
+    },
+    "normal": {
+      "smoker_per_1000": 6.4,
+      "nonsmoker_per_1000": 3.6,
+      "rr": 1.77,
+      "defect_share_smoker_pct": 0.9,
+      "defect_share_nonsmoker_pct": 1.1
+    }
+  },
+  "publication_filter": {
+    "share_of_studies_published_pct": 7.4,
+    "published_that_are_null_pct": 20.7,
+    "mean_published_d": 0.75,
+    "mean_true_d_of_published": 0.351,
+    "mean_replication_d": 0.354,
+    "replication_success_pct": 38.6,
+    "shrinkage_ratio": 0.47
+  }
+}
