@@ -12,7 +12,7 @@ no sampling noise. Smoking is given a strictly harmful effect everywhere.
 """
 import itertools
 
-from style import BLUE, INK_2, ORANGE, apply, plt, save
+from style import BLUE, INK_2, ORANGE, apply, plt, save, titled
 
 P_SMOKE = 0.25
 P_DEFECT = 0.02
@@ -47,7 +47,7 @@ def run(fig_dir, rng=None):
 
     apply()
     fig, ax = plt.subplots(figsize=(8, 4.4))
-    groups = [("All babies", "all"), ("Low birth weight only", "lbw"), ("Normal birth weight only", "normal")]
+    groups = [("All babies", "all"), ("Normal-weight babies", "normal"), ("Small babies only\n(under 2.5 kg)", "lbw")]
     w = 0.36
     for i, (label, key) in enumerate(groups):
         ax.bar(i - w / 2 - 0.01, res[key]["nonsmoker_per_1000"], w, color=BLUE,
@@ -55,13 +55,14 @@ def run(fig_dir, rng=None):
         ax.bar(i + w / 2 + 0.01, res[key]["smoker_per_1000"], w, color=ORANGE,
                label="Smoking mother" if i == 0 else None)
         top = max(res[key]["nonsmoker_per_1000"], res[key]["smoker_per_1000"])
-        ax.text(i, top + 1.2, f"risk ratio {res[key]['rr']:.2f}", ha="center", fontsize=9.5, color=INK_2)
+        ax.text(i, top + 1.2, (f"{(res[key]['rr'] - 1) * 100:+.0f}% for smokers"), ha="center", fontsize=9.5, color=INK_2)
     ax.set_xticks(range(3), [g[0] for g in groups])
-    ax.set_ylabel("Infant deaths per 1,000")
-    ax.set_title("Smoking harms every baby, yet 'protects' small ones")
+    ax.set_ylabel("Babies who die in their first year, per 1,000")
+    titled(ax, "Smoking harms babies, yet seems to 'protect' small ones",
+           "Look only at small babies, and smoking mothers' babies appear to do better")
     ax.set_ylim(0, 58)
     ax.legend(loc="upper left")
     ax.grid(axis="x", visible=False)
     save(fig, f"{fig_dir}/05_birth_weight.png",
-         note="Exact calculation from an assumed causal model in which smoking raises mortality in every stratum.")
+         note="Exact calculation from an assumed model in which smoking raises the risk of death for every baby. The real-world pattern is in US vital statistics.")
     return res

@@ -14,7 +14,7 @@ classify this as confounding by self-selection into treatment.
 """
 import numpy as np
 
-from style import BLUE, GRAY, INK_2, ORANGE, apply, plt, save
+from style import BLUE, GRAY, INK, ORANGE, apply, label_hbars, plt, save, titled
 
 N = 2_000_000
 TRUE_RR = 1.24
@@ -59,24 +59,24 @@ def run(fig_dir, rng):
     rct = rr(rct_y, randomized)
 
     apply()
-    fig, ax = plt.subplots(figsize=(8, 4.4))
-    labels = ["Observational\n(raw)", "Observational\n(adjusted for\nmeasured factors)",
-              "Randomised trial", "True effect"]
-    vals = [naive, adjusted, rct, TRUE_RR]
-    colors = [ORANGE, ORANGE, BLUE, GRAY]
-    y = np.arange(4)[::-1]
-    ax.barh(y, [v - 1 for v in vals], left=1, color=colors, height=0.55)
-    ax.axvline(1, color=INK_2, lw=1)
-    for yi, v in zip(y, vals):
-        ax.text(v + (0.015 if v >= 1 else -0.015), yi, f"{v:.2f}", va="center",
-                ha="left" if v >= 1 else "right", fontsize=10, color=INK_2)
-    ax.set_yticks(y, labels)
-    ax.set_xlim(0.4, 1.45)
-    ax.set_xlabel("Risk ratio for heart disease, HRT users vs non-users  (<1 looks protective)")
-    ax.set_title("Same drug, same harm: self-selection made HRT look protective")
+    fig, ax = plt.subplots(figsize=(8, 3.9))
+    rows = [("1990s observational studies\n(e.g. Nurses' Health Study)", -45, ORANGE, "about 45% lower"),
+            ("Randomised trial\n(Women's Health Initiative, 2002-03)", 24, BLUE, "24% higher"),
+            ("Our simulation: drug set to\n24% higher, women choose", (naive - 1) * 100, GRAY,
+             f"{abs(naive - 1) * 100:.0f}% lower")]
+    y = np.arange(len(rows))[::-1]
+    ax.barh(y, [r[1] for r in rows], color=[r[2] for r in rows], height=0.56)
+    label_hbars(ax, y, [r[1] for r in rows], [r[3] for r in rows], 1.5)
+    ax.axvline(0, color=INK, lw=1.2)
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(-100, 50)
+    ax.set_xticks([-60, -40, -20, 0, 20, 40], ["-60%", "-40%", "-20%", "0", "+20%", "+40%"])
+    ax.set_xlabel("Change in heart-disease risk for women on HRT   (left = looks protective, right = harmful)")
     ax.grid(axis="y", visible=False)
+    titled(ax, "Studies said HRT protected the heart. A trial found the opposite",
+           "And a simulation shows self-selection alone can produce the false result")
     save(fig, f"{fig_dir}/03_hrt.png",
-         note="Simulation with true risk ratio fixed at 1.24 (WHI 2003). Real-world anchors: observational ~0.5-0.6; WHI RCT 1.24-1.29.")
+         note="Observational: 40-50% reduction reported across 1980s-90s cohort studies. WHI: hazard ratio 1.24 (Manson et al. 2003). Simulation: see analysis/hrt.py.")
 
     return {
         "true_rr": TRUE_RR,

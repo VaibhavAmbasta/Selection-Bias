@@ -12,30 +12,32 @@
     "implied_response_rate_pct": 25.0,
     "share_of_error_from_nonresponse_pct": 36.0
   },
-  "digest_err_at_2_4M_points": 19.5,
-  "srs_err_at_1500_points": 1.0
+  "digest_err_simulated_at_full_size_points": 19.5,
+  "typical_miss_random_1000_points": 1.53,
+  "typical_miss_random_6_points": 19.8,
+  "gallup_forecast_pct_as_reported": 56
 }
 == wald_bombers
 {
-  "loss_rate_pct": 19.5,
+  "loss_rate_pct": 24.7,
   "returned_density_vs_true_pct": {
-    "Engines": 68,
-    "Cockpit": 72,
-    "Fuel system": 84,
-    "Fuselage": 108,
-    "Wings": 109
+    "Engines": 47,
+    "Cockpit": 58,
+    "Fuel system": 81,
+    "Fuselage": 112,
+    "Wings": 113
   },
   "true_lethality": {
-    "Engines": 0.4,
-    "Cockpit": 0.35,
-    "Fuel system": 0.25,
+    "Engines": 0.6,
+    "Cockpit": 0.5,
+    "Fuel system": 0.3,
     "Fuselage": 0.04,
     "Wings": 0.03
   },
   "wald_estimated_lethality": {
-    "Engines": 0.402,
-    "Cockpit": 0.371,
-    "Fuel system": 0.264,
+    "Engines": 0.604,
+    "Cockpit": 0.512,
+    "Fuel system": 0.315,
     "Fuselage": 0.032,
     "Wings": 0.03
   }
@@ -53,35 +55,72 @@
   "exact_n4_k1_expected_p_hit_after_hit": 0.4048,
   "n100_k3_expected_p_hit_after_3_hits": 0.4602,
   "n100_k3_expected_gap_hits_minus_misses_points": -7.9,
-  "curve_points": {
-    "k=1": {
-      "10": -5.57,
-      "20": -2.59,
-      "40": -1.23,
-      "60": -0.85,
-      "100": -0.54,
-      "200": -0.28,
-      "400": -0.15
+  "four_flip_table": [
+    {
+      "sequence": "HHHH",
+      "heads_after_heads": "3/3"
     },
-    "k=2": {
-      "10": -12.34,
-      "20": -8.64,
-      "40": -4.2,
-      "60": -2.7,
-      "100": -1.59,
-      "200": -0.74,
-      "400": -0.42
+    {
+      "sequence": "HHHT",
+      "heads_after_heads": "2/3"
     },
-    "k=3": {
-      "10": -14.31,
-      "20": -13.93,
-      "40": -9.65,
-      "60": -6.75,
-      "100": -4.05,
-      "200": -1.83,
-      "400": -0.84
+    {
+      "sequence": "HHTH",
+      "heads_after_heads": "1/2"
+    },
+    {
+      "sequence": "HHTT",
+      "heads_after_heads": "1/2"
+    },
+    {
+      "sequence": "HTHH",
+      "heads_after_heads": "1/2"
+    },
+    {
+      "sequence": "HTHT",
+      "heads_after_heads": "0/2"
+    },
+    {
+      "sequence": "HTTH",
+      "heads_after_heads": "0/1"
+    },
+    {
+      "sequence": "HTTT",
+      "heads_after_heads": "0/1"
+    },
+    {
+      "sequence": "THHH",
+      "heads_after_heads": "2/2"
+    },
+    {
+      "sequence": "THHT",
+      "heads_after_heads": "1/2"
+    },
+    {
+      "sequence": "THTH",
+      "heads_after_heads": "0/1"
+    },
+    {
+      "sequence": "THTT",
+      "heads_after_heads": "0/1"
+    },
+    {
+      "sequence": "TTHH",
+      "heads_after_heads": "1/1"
+    },
+    {
+      "sequence": "TTHT",
+      "heads_after_heads": "0/1"
+    },
+    {
+      "sequence": "TTTH",
+      "heads_after_heads": "n/a (no flip follows a head)"
+    },
+    {
+      "sequence": "TTTT",
+      "heads_after_heads": "n/a (no flip follows a head)"
     }
-  }
+  ]
 }
 == birth_weight
 {
@@ -115,5 +154,9 @@
   "mean_true_d_of_published": 0.351,
   "mean_replication_d": 0.354,
   "replication_success_pct": 38.6,
-  "shrinkage_ratio": 0.47
+  "shrinkage_ratio": 0.47,
+  "per_1000_run": 1000,
+  "per_1000_published": 74,
+  "per_1000_published_null": 15,
+  "per_1000_replicate": 29
 }

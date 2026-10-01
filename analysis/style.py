@@ -48,3 +48,18 @@ def save(fig, path, note=None):
         fig.text(0.01, -0.02, note, fontsize=8, color=INK_2, ha="left", va="top", wrap=True)
     fig.savefig(path, dpi=180, bbox_inches="tight")
     plt.close(fig)
+
+
+def titled(ax, title, subtitle=None):
+    """Bold headline plus a plain-English subtitle under it."""
+    ax.set_title(title, pad=30 if subtitle else 10)
+    if subtitle:
+        ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=10, color=INK_2,
+                ha="left", va="bottom")
+
+
+def label_hbars(ax, y, vals, texts, pad, inside_min=None):
+    """Write each bar's value just past its end, in ink colour."""
+    for yi, v, t in zip(y, vals, texts):
+        ax.text(v + (pad if v >= 0 else -pad), yi, t, va="center",
+                ha="left" if v >= 0 else "right", fontsize=11, color=INK, fontweight="bold")

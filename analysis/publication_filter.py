@@ -13,7 +13,7 @@ not estimates of the OSC sample.
 import numpy as np
 from scipy import stats
 
-from style import BLUE, GRAY, INK_2, ORANGE, apply, plt, save
+from style import BLUE, GRAY, ORANGE, apply, label_hbars, plt, save, titled
 
 N_STUDIES = 200_000
 P_NULL = 0.6            # share of tested hypotheses with no true effect (assumed)
@@ -48,26 +48,45 @@ def run(fig_dir, rng):
         "shrinkage_ratio": round(float(d_rep.mean() / d_orig[published].mean()), 2),
     }
 
+    per1000 = 1000 / N_STUDIES
+    n_pub = published.sum() * per1000
+    n_pub_null = (published & ~real).sum() * per1000
+    n_rep = rep_success.sum() * per1000
+    res.update({"per_1000_run": 1000, "per_1000_published": round(n_pub),
+                "per_1000_published_null": round(n_pub_null), "per_1000_replicate": round(n_rep)})
+
     apply()
-    fig, ax = plt.subplots(figsize=(8, 4.6))
-    idx = rng.choice(published.sum(), 1500, replace=False)
-    ax.scatter(d_orig[published][idx], d_rep[idx], s=9, color=BLUE, alpha=0.35, lw=0,
-               label="Published study (1 dot each)")
-    lim = (-0.6, 1.5)
-    ax.plot(lim, lim, color=GRAY, lw=1, ls="--")
-    ax.text(1.15, 1.25, "replication = original", fontsize=8.5, color=INK_2, rotation=33)
-    ax.axhline(0, color=INK_2, lw=0.8)
-    ax.scatter([res["mean_published_d"]], [res["mean_replication_d"]], s=90, color=ORANGE,
-               edgecolor="white", lw=2, zorder=5, label="Average")
-    ax.annotate(f"published avg d = {res['mean_published_d']:.2f}\nreplication avg d = {res['mean_replication_d']:.2f}",
-                (res["mean_published_d"], res["mean_replication_d"]), xytext=(0.85, -0.45),
-                fontsize=9, color=INK_2, arrowprops=dict(arrowstyle="-", color=INK_2, lw=0.8))
-    ax.set_xlim(*lim)
-    ax.set_ylim(-0.6, 1.5)
-    ax.set_xlabel("Effect size in the original, published study (Cohen's d)")
-    ax.set_ylabel("Effect size when replicated")
-    ax.set_title("Publishing only 'significant' results inflates every effect")
-    ax.legend(loc="upper left")
-    save(fig, f"{fig_dir}/06_publication_filter.png",
-         note="Simulation; true-effect distribution and sample sizes assumed. Real-world anchor: OSC 2015 (97% → 36% significant; effects ~halved).")
+    # Chart A: the real Reproducibility Project numbers.
+    fig, ax = plt.subplots(figsize=(8, 3.4))
+    rows = [("Original studies with a\n'significant' result", 97, BLUE),
+            ("Same studies, repeated\nby other teams", 36, ORANGE)]
+    y = np.arange(2)[::-1]
+    ax.barh(y, [r[1] for r in rows], color=[r[2] for r in rows], height=0.5)
+    label_hbars(ax, y, [r[1] for r in rows], [f"{r[1]}%" for r in rows], 1.0)
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(0, 110)
+    ax.set_xticks([0, 25, 50, 75, 100], ["0", "25%", "50%", "75%", "100%"])
+    ax.grid(axis="y", visible=False)
+    titled(ax, "Most famous psychology results didn't survive a re-run",
+           "100 studies from top journals (2008), repeated by 270 researchers")
+    save(fig, f"{fig_dir}/06a_replication_real.png",
+         note="Source: Open Science Collaboration (2015), Science 349(6251). Replicated effects were also about half as large on average.")
+
+    # Chart B: the filter, per 1,000 studies.
+    fig, ax = plt.subplots(figsize=(8, 3.9))
+    rows = [("Studies run", 1000, GRAY),
+            ("Got p < 0.05 and published", n_pub, BLUE),
+            ("...of which the effect isn't real", n_pub_null, ORANGE),
+            ("...that work again when repeated", n_rep, BLUE)]
+    y = np.arange(4)[::-1]
+    ax.barh(y, [r[1] for r in rows], color=[r[2] for r in rows], height=0.56)
+    label_hbars(ax, y, [r[1] for r in rows], [f"{r[1]:,.0f}" for r in rows], 12)
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(0, 1150)
+    ax.set_xlabel("Number of studies (simulated, per 1,000 run)")
+    ax.grid(axis="y", visible=False)
+    titled(ax, "Only the lucky results get printed",
+           f"Published effects looked {res['mean_published_d'] / res['mean_true_d_of_published']:.1f}x bigger than they really were")
+    save(fig, f"{fig_dir}/06b_publication_filter.png",
+         note="Simulation; the mix of real and zero effects and the sample sizes are assumptions. See analysis/publication_filter.py.")
     return res

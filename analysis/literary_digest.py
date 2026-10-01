@@ -15,7 +15,7 @@ Two analyses:
 """
 import numpy as np
 
-from style import BLUE, GRAY, INK_2, ORANGE, apply, plt, save
+from style import BLUE, INK, INK_2, ORANGE, apply, label_hbars, plt, save, titled
 
 DIGEST_LANDON = 1_293_669
 DIGEST_FDR = 972_897
@@ -41,33 +41,53 @@ def run(fig_dir, rng):
     resp_fdr_share = FRAME_FDR * RESP_FDR / (FRAME_FDR * RESP_FDR + (1 - FRAME_FDR) * RESP_LANDON)
     resp_rate = FRAME_FDR * RESP_FDR + (1 - FRAME_FDR) * RESP_LANDON
 
-    # Simulate polls of increasing size under each design.
-    sizes = np.unique(np.logspace(2, 6.4, 25).astype(int))
-    reps = 400
-    srs_err, digest_err = [], []
-    for n in sizes:
-        srs = rng.binomial(n, actual_fdr, reps) / n
-        dig = rng.binomial(n, resp_fdr_share, reps) / n
-        srs_err.append(np.mean(np.abs(srs - actual_fdr)) * 100)
-        digest_err.append(np.mean(np.abs(dig - actual_fdr)) * 100)
+    gallup_fdr = 0.56  # Gallup's final 1936 forecast as commonly reported (~56%)
+    pq = actual_fdr * (1 - actual_fdr)
+    miss_1000 = np.sqrt(pq / 1000) * 100
+    miss_6 = np.sqrt(pq / 6) * 100
+
+    # Sanity check by simulation: a 2.27M-ballot poll drawn from the calibrated
+    # respondent pool still misses by ~19.5 points; sampling noise is negligible.
+    dig = rng.binomial(n_returned, resp_fdr_share, 400) / n_returned
+    digest_err_sim = np.mean(np.abs(dig - actual_fdr)) * 100
 
     apply()
-    fig, ax = plt.subplots(figsize=(8, 4.6))
-    ax.plot(sizes, srs_err, color=BLUE, lw=2, label="Random sample of voters")
-    ax.plot(sizes, digest_err, color=ORANGE, lw=2, label="Digest-style mail poll")
-    ax.axvline(n_returned, color=GRAY, lw=1, ls="--")
-    ax.text(n_returned * 0.92, 21.2, "2.27M two-party\nballots", ha="right", va="top",
-            fontsize=9, color=INK_2)
-    ax.axvline(50_000, color=GRAY, lw=1, ls=":")
-    ax.text(50_000 * 1.08, 21.2, "Gallup\n~50k", ha="left", va="top", fontsize=9, color=INK_2)
-    ax.set_xscale("log")
-    ax.set_ylim(0, 22)
-    ax.set_xlabel("Poll size (number of responses, log scale)")
-    ax.set_ylabel("Average miss on Roosevelt's share (points)")
-    ax.set_title("More ballots never fixed the Literary Digest's error")
-    ax.legend(loc="center left")
-    save(fig, f"{fig_dir}/01_literary_digest.png",
-         note="Mail-poll curve: illustrative model calibrated to the Digest's published 43% Roosevelt share. Random-sample curve: exact sampling math.")
+    # Chart A: what each poll said vs what happened.
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    rows = [("Literary Digest\n2.3 million ballots", digest_fdr * 100, ORANGE),
+            ("Gallup\n~50,000 interviews", gallup_fdr * 100, BLUE),
+            ("Actual result", actual_fdr * 100, INK_2)]
+    y = np.arange(len(rows))[::-1]
+    ax.barh(y, [r[1] for r in rows], color=[r[2] for r in rows], height=0.56)
+    label_hbars(ax, y, [r[1] for r in rows], [f"{digest_fdr * 100:.1f}%", "~56%", f"{actual_fdr * 100:.1f}%"], 0.8)
+    ax.axvline(50, color=INK, lw=1.2, ls="--")
+    ax.set_ylim(-0.5, 2.95)
+    ax.text(50.6, 2.5, "50%: needed to win", fontsize=9, color=INK_2, va="bottom")
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(0, 75)
+    ax.set_xlabel("Roosevelt's share of the vote (Roosevelt vs Landon)")
+    ax.grid(axis="y", visible=False)
+    titled(ax, "The biggest poll in history picked the wrong winner",
+           "1936 US election: what each poll said Roosevelt would get, and what he got")
+    save(fig, f"{fig_dir}/01a_literary_digest_polls.png",
+         note="Digest and actual: Roosevelt's share of Roosevelt + Landon votes. Gallup: final forecast as commonly reported (~56%).")
+
+    # Chart B: how far off you'd typically be.
+    fig, ax = plt.subplots(figsize=(8, 3.6))
+    rows = [("Ask 1,000 random voters", miss_1000, BLUE),
+            ("Ask 6 random voters", miss_6, BLUE),
+            ("Literary Digest\n(2.3 million ballots)", error * 100, ORANGE)]
+    y = np.arange(len(rows))[::-1]
+    ax.barh(y, [r[1] for r in rows], color=[r[2] for r in rows], height=0.56)
+    label_hbars(ax, y, [r[1] for r in rows], [f"{r[1]:.1f} points" for r in rows], 0.4)
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(0, 26)
+    ax.set_xlabel("How far off the poll typically lands (percentage points)")
+    ax.grid(axis="y", visible=False)
+    titled(ax, "2.3 million biased ballots were as accurate as 6 random people",
+           "A small fair sample beats a huge skewed one")
+    save(fig, f"{fig_dir}/01b_literary_digest_six_voters.png",
+         note="Random-sample rows: standard sampling error, sqrt(p(1-p)/n), with p = Roosevelt's actual 62.5%. Digest row: its actual miss.")
 
     return {
         "digest_fdr_two_party_pct": round(digest_fdr * 100, 1),
@@ -83,7 +103,8 @@ def run(fig_dir, rng):
             "share_of_error_from_nonresponse_pct": round(
                 (FRAME_FDR - resp_fdr_share) / (actual_fdr - resp_fdr_share) * 100, 0),
         },
-        "digest_err_at_2_4M_points": round(digest_err[-1], 1),
-        "srs_err_at_1500_points": round(
-            np.sqrt(actual_fdr * (1 - actual_fdr) / 1500) * np.sqrt(2 / np.pi) * 100, 2),
+        "digest_err_simulated_at_full_size_points": round(digest_err_sim, 1),
+        "typical_miss_random_1000_points": round(miss_1000, 2),
+        "typical_miss_random_6_points": round(miss_6, 1),
+        "gallup_forecast_pct_as_reported": 56,
     }
